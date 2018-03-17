@@ -2,24 +2,28 @@
  * Trainer is the entry point to all the various parts of this tetris AI.
  */
 
-import java.lang.Math.*;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 
 import Heuristics.Score;
 
 public class Trainer{
-  public static Boolean DISPLAY_GRAPHIC = false;
+  public static Boolean DISPLAY_GRAPHIC = true;
   public static int DISPLAY_GRAPHIC_NEW_PIECE_PERIOD = 300;
 
   public static void main(String[] args) {
     Trainer x = new Trainer();
-    double[] dd = new double[4];
+    double[] dd = new double[10];
     dd[0] = 1;
     dd[1] = 1;
     dd[2] = 1;
+    dd[3] = 1;
+    dd[4] = 1;
+    dd[5] = 1;
+    dd[6] = 1;
+    dd[7] = 1;
+    dd[8] = 1;
 
-    x.runGame(dd);
+    System.out.printf("Game score: %d\n", x.runGame(dd));
   }
 
   /*
@@ -40,13 +44,11 @@ public class Trainer{
       printBoard(field);
       
       // Generate score for each possibility
-      double[] scores = new double[5];/*calculateMoveScores(field, nextPiece, legalMoves,
+      double[] scores = new double[legalMoves.length];/*calculateMoveScores(field, nextPiece, legalMoves,
                                             weights);*/
 
-      scores[0] = calculateMoveScore(s, nextPiece, legalMoves[0], weights);
-      System.out.printf("scores[0] = %f\n", scores[0]);
+      scores = calculateMoveScores(s, nextPiece, legalMoves, weights);
       s.makeMove(movePicker(scores));
-
       if (DISPLAY_GRAPHIC) {
         s.draw();
         s.drawNext(0,0);
@@ -73,6 +75,7 @@ public class Trainer{
             maxInd = i;
         }
     }
+    System.out.printf("Picking move %d with value %f\n", maxInd, scores[maxInd]);
     return maxInd;
   }
 
@@ -80,8 +83,12 @@ public class Trainer{
    * Calculate scores based on applying each move permutation to the field
    */
   private double[] calculateMoveScores(State s, int piece,
-                                       int[][] moves, double weights) {
+                                       int[][] moves, double[] weights) {
     double[] results = new double[moves.length];
+
+    for(int q = 0; q < moves.length; q++) {
+      results[q] = calculateMoveScore(s, piece, moves[q], weights);
+    }
 
     return results;
   }
@@ -136,7 +143,7 @@ public class Trainer{
     
       for(int pw = 0; pw < pieceWidth; pw++) {
         for(int pr = pBottom[pw]; pr < pTop[pw]; pr++) {
-  
+          if(minColumnHeight + pr > State.ROWS - 1) return -1;
           // Check field position
           if (field[minColumnHeight + pr][moveSlot + pw] != 0) {
             collision = true;
@@ -144,8 +151,22 @@ public class Trainer{
         }
       }
       
-      if (!collision) break;
-      
+      if (!collision) {
+        // Check that for all columns with the piece, it has a clear path from the top
+        
+        boolean hasClearPath = true; 
+        
+        for (int c = moveSlot; c < (moveSlot + pieceWidth); c++) {
+          for (int q = minColumnHeight + pTop[c - moveSlot]; q < State.ROWS - 1; q++) {
+            if (field[q][c] != 0) {
+              hasClearPath = false;
+              break;
+            }
+          }
+        }
+        
+        if (hasClearPath) break;
+      }
       // If there are collisions, raise minimum and check again
       minColumnHeight++;
     }
@@ -166,7 +187,7 @@ public class Trainer{
     int[] pTop = s.getpTop()[piece][moveOrient];
     
     int[][] oldField = s.getField();
-    int[][] newField = oldField.clone();
+    int[][] newField = deepCopy(oldField);
     
     int turnNumber = s.getTurnNumber() + 1;
     for(int pw = 0; pw < pieceWidth; pw++) {
@@ -179,6 +200,17 @@ public class Trainer{
     return newField;
   }
 
+  public static int[][] deepCopy(int[][] a) {
+    if (a == null) return null;
+    
+    final int[][] c = new int[a.length][];
+    
+    for(int q = 0; q < a.length; q++) {
+      c[q] = Arrays.copyOf(a[q],  a[q].length);
+    }
+    
+    return c;
+  }
 
   private void printBoard(int[][] field) {
     System.out.println("");

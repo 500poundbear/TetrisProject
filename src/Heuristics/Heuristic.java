@@ -62,6 +62,37 @@ public class Heuristic {
     return numHoles;
   }
 
+  /*
+   * Returns the absolute difference between the highest and lowest column
+   */
+  public int rangeColumnHeight() {
+    int maxHeight = -1;
+    int minHeight = Integer.MAX_VALUE;
+    
+    for(int c = 0; c < cols; c++) {
+      maxHeight = Math.max(maxHeight, top[c]);
+      minHeight = Math.min(minHeight, top[c]);
+    }
+    
+    int absoluteDifference = Math.abs(maxHeight - minHeight);
+    if (VERBOSE) {
+      System.out.printf("abs(highest - lowest): %d\n", absoluteDifference);
+    }
+    return absoluteDifference;
+  }
+
+  public int cumulativeColumnHeight() {
+    int heightSum = 0;
+    for(int c = 0; c < cols; c++) {
+      heightSum = Math.max(heightSum, top[c]);
+    }
+    
+    if (VERBOSE) {
+      System.out.printf("total column height: %d\n", heightSum);
+    }
+    return heightSum;
+  }
+
   private int columnHeight(int c) {
     int r = -1;
     for(r = rows - 1; r >=0; r--) {

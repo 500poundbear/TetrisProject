@@ -17,6 +17,8 @@ public class Score{
     heuristics.add(h.maximumColumnHeight());
     heuristics.add(h.cumulColumnHeightDiff());
     heuristics.add(h.numberofHoles());
+    heuristics.add(h.rangeColumnHeight());
+    heuristics.add(h.cumulativeColumnHeight());
     
     this.weights = weights;
   }
@@ -26,7 +28,7 @@ public class Score{
    */
   public double getScore() {
     double score = 0;
-    if (heuristics.size() > weights.length) throw new Error();
+    if (heuristics.size() > weights.length) throw new Error("Insufficient weights specified");
     
     for(int q = 0; q < heuristics.size(); q++) {
       score += weights[q] * heuristics.get(q);
