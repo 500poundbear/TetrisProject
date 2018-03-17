@@ -7,7 +7,7 @@ import java.util.Arrays;
 import Heuristics.Score;
 
 public class Trainer{
-  public static Boolean DISPLAY_GRAPHIC = true;
+  public static Boolean DISPLAY_GRAPHIC = false;
   public static int DISPLAY_GRAPHIC_NEW_PIECE_PERIOD = 300;
 
   public static void main(String[] args) {

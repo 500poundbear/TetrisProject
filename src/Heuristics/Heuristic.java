@@ -19,7 +19,7 @@ public class Heuristic {
       top[c] = columnHeight(c);
     }
   }
-
+  
   public int maximumColumnHeight() {
     int maxHeight = -1;
     for(int c = 0; c < cols; c++) {
@@ -30,6 +30,20 @@ public class Heuristic {
       System.out.printf("maximum column height: %d\n", maxHeight);
     }
     return maxHeight;
+  }
+  
+  public int minimumColumnHeight() {
+    int minHeight = top[0];
+    for(int c = 1; c < cols; c++) {
+      minHeight = Math.min(minHeight, top[c]);
+    }
+    
+    minHeight += 1; // To get an output [0, State.ROWS - 1]
+    
+    if (VERBOSE) {
+      System.out.printf("minimum column height: %d\n", minHeight);
+    }
+    return minHeight; 
   }
 
   public int cumulColumnHeightDiff() {

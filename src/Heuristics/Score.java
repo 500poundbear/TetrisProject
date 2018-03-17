@@ -15,6 +15,7 @@ public class Score{
     
     heuristics = new ArrayList<Integer>();
     heuristics.add(h.maximumColumnHeight());
+    heuristics.add(h.minimumColumnHeight());
     heuristics.add(h.cumulColumnHeightDiff());
     heuristics.add(h.numberofHoles());
     heuristics.add(h.rangeColumnHeight());
