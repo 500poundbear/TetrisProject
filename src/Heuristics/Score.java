@@ -23,6 +23,7 @@ public class Score{
     heuristics.add(h.rowsCleared());
     heuristics.add(h.numberColumnsWithHoles());
     heuristics.add(h.numberColumnsWithBigRecesses());
+    heuristics.add(h.cumulativePits());
     
     this.weights = weights;
   }

@@ -188,6 +188,27 @@ public class Heuristic {
     
     return fillCount;
   }
+  
+  /*
+   * A pit is found at the highest filled point of a column if it is at least two pieces
+   * shorter than its adjacent neighbour's highest filled point
+   */
+  public int cumulativePits() {
+    int pitCount = 0;
+    for(int c = 0; c < cols; c++) {
+      int leftIndex = Math.max(c - 1, 0);
+      int rightIndex = Math.min(c + 1, cols - 1);
+      
+      if ((top[leftIndex] - top[c]) >= 2 &&
+          (top[rightIndex] - top[c]) >= 2) pitCount++;
+    }
+    
+    if (VERBOSE) {
+      System.out.printf("Number of pits: %d\n", pitCount);
+    }
+    
+    return pitCount;
+  }
 
   private int columnHeight(int c) {
     int r = -1;
