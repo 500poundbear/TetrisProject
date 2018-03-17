@@ -36,12 +36,14 @@ public class Trainer{
       int[][] field = s.getField();
       int nextPiece = s.getNextPiece();
       int[][] legalMoves = s.legalMoves();
-
+      System.out.printf("CURRENT BOARD: \n");
+      printBoard(field);
+      
       // Generate score for each possibility
       double[] scores = new double[5];/*calculateMoveScores(field, nextPiece, legalMoves,
                                             weights);*/
 
-      scores[0] = calculateMoveScore(field, nextPiece, legalMoves[0], weights);
+      scores[0] = calculateMoveScore(s, nextPiece, legalMoves[0], weights);
       System.out.printf("scores[0] = %f\n", scores[0]);
       s.makeMove(movePicker(scores));
 
@@ -77,7 +79,7 @@ public class Trainer{
   /*
    * Calculate scores based on applying each move permutation to the field
    */
-  private double[] calculateMoveScores(int[][] field, int piece,
+  private double[] calculateMoveScores(State s, int piece,
                                        int[][] moves, double weights) {
     double[] results = new double[moves.length];
 
@@ -87,29 +89,100 @@ public class Trainer{
   /*
    * Calculate score based on applying a move
    */
-  private double calculateMoveScore(int[][] field, int piece, int[] move,
+  private double calculateMoveScore(State s, int piece, int[] move,
                                     double[] weights) {
-    int[][] newField = addToField(field, piece, move);
-
+    int rowToAddPiece = findRowForPiece(s, piece, move);
+    
+    if (rowToAddPiece == -1) {
+      return Integer.MIN_VALUE;
+    }
+                                   
+    int[][] newField = addToField(s, piece, move, rowToAddPiece);
+    printBoard(newField);
+    
     Score moveScore = new Score(newField, weights);
     return moveScore.getScore();
   }
+  
+  /*
+   * Find the row to add piece to field
+   */
+  
+  private int findRowForPiece(State s, int piece, int[] move) {
+    int moveOrient = move[State.ORIENT];
+    int moveSlot = move[State.SLOT];
+    
+    int[] topColumns = s.getTop();
+    int pieceWidth = s.getpWidth()[piece][moveOrient];
+    int pieceHeight = s.getpHeight()[piece][moveOrient];
+    
+    int minColumnHeight = Integer.MAX_VALUE;
+    // Find the lowest column height within the width span
+    // The lowest possible spot for this piece is lower bounded by the above value.
+    for (int q = moveSlot; q < (moveSlot + pieceWidth); q++) {
+       minColumnHeight = Math.min(minColumnHeight, topColumns[q]);
+    }
+    
+    // Check, for any of the tile's potential spot, if it is already occupied
+    
+    int[] pBottom = s.getpBottom()[piece][moveOrient];
+    int[] pTop = s.getpTop()[piece][moveOrient];
+    int[][] field = s.getField();
+    
+    boolean collision = true;
+    
+    while(minColumnHeight + pieceHeight < State.ROWS) {
+      collision = false;
+    
+      for(int pw = 0; pw < pieceWidth; pw++) {
+        for(int pr = pBottom[pw]; pr < pTop[pw]; pr++) {
+  
+          // Check field position
+          if (field[minColumnHeight + pr][moveSlot + pw] != 0) {
+            collision = true;
+          }
+        }
+      }
+      
+      if (!collision) break;
+      
+      // If there are collisions, raise minimum and check again
+      minColumnHeight++;
+    }
+    
+    return collision ? -1 : minColumnHeight;
+  }
+
 
   /*
    * Add piece to field
    */
-  private int[][] addToField(int[][] field, int piece, int[] move) {
+  private int[][] addToField(State s, int piece, int[] move, int rowToAddPiece) {
     int moveOrient = move[State.ORIENT];
     int moveSlot = move[State.SLOT];
-
-    printBoard(field);
-    return field;
+    
+    int pieceWidth = s.getpWidth()[piece][moveOrient];
+    int[] pBottom = s.getpBottom()[piece][moveOrient];
+    int[] pTop = s.getpTop()[piece][moveOrient];
+    
+    int[][] oldField = s.getField();
+    int[][] newField = oldField.clone();
+    
+    int turnNumber = s.getTurnNumber() + 1;
+    for(int pw = 0; pw < pieceWidth; pw++) {
+      for(int pr = pBottom[pw]; pr < pTop[pw]; pr++) {
+        if (rowToAddPiece + pr >= State.ROWS) break;
+        newField[rowToAddPiece + pr][moveSlot + pw] = turnNumber;
+      }
+    }
+    
+    return newField;
   }
 
 
   private void printBoard(int[][] field) {
     System.out.println("");
-    for(int q = State.ROWS - 1; q >= 0; q--) {
+    for(int q = State.ROWS - 2; q >= 0; q--) {
       for(int w = 0; w < State.COLS; w++) {
         System.out.printf("%d ", field[q][w]);
       }
