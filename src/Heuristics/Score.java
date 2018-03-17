@@ -19,6 +19,7 @@ public class Score{
     heuristics.add(h.numberofHoles());
     heuristics.add(h.rangeColumnHeight());
     heuristics.add(h.cumulativeColumnHeight());
+    heuristics.add(h.rowsCleared());
     
     this.weights = weights;
   }

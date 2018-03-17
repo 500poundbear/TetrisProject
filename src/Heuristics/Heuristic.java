@@ -92,6 +92,26 @@ public class Heuristic {
     }
     return heightSum;
   }
+  
+  public int rowsCleared() {
+    int rowsCleared = 0;
+    boolean rowFull;
+    for(int r = 0; r < rows; r++) {
+      rowFull = true;
+      for(int c = 0; c < cols; c++) {
+        if (field[r][c] == 0) {
+          rowFull = false;
+          break;
+        }
+      }
+      if (rowFull) rowsCleared++;
+    }
+    
+    if (VERBOSE) {
+      System.out.printf("total rows cleared: %d\n", rowsCleared);
+    }
+    return rowsCleared;
+  }
 
   private int columnHeight(int c) {
     int r = -1;
