@@ -11,18 +11,9 @@ import Heuristics.Score;
 
 				return 1;
 			}
+
 			
-			private void printBoard(int[][] field) {
-				System.out.println("");
-				for(int q = State.ROWS - 1; q >= 0; q--) {
-					for(int w = 0; w < State.COLS; w++) {
-						System.out.printf("%d ", field[q][w]);
-					}
-					System.out.printf("\n");
-				}
-				System.out.println("===================");
-			}
-	
+
 		public static void main(String[] args) {
 			State s = new State();
 			new TFrame(s);
